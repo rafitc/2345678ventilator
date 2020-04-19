@@ -1,0 +1,39 @@
+
+int valorSensor;
+float pressure_pa;
+const int analogInPin = A1; // Analog input pin, connected to pressure sensor
+ //Variables to change
+ double massFlow = 0; // Mass flow rate calculated from pressure
+ double volFlow = 0; // Calculated from mass flow rate
+ double volume = 0; // Integral of flow rate over time
+  //Constants
+ double rho = 1.225; // Density of air in kg/m3
+ double area_1 =   0.0015904312808798; // Surface area in m2
+ double area_2 =   0.011309733552923; // Surface area in m2
+ double dt = 0;
+
+void setup() 
+{
+Serial.begin(19200);
+pinMode(analogInPin,INPUT);
+}
+
+void loop() 
+{
+valorSensor=analogRead(analogInPin);
+////CONVERSION A KPA//////
+///// 0-50kPa (0-7.25psi) = 0 a 40mV    0.8 mV/kPa
+pressure_pa=map(valorSensor, 0, 180, 0, 50000);
+massFlow = 1000*sqrt((abs(pressure_pa-36666)*2*rho)/((1/(pow(area_2,2)))-(1/(pow(area_1,2))))); // Massflow of air
+ volFlow = massFlow/rho; // Volumetric flow of air
+ volume = volFlow*dt + volume; // Total volume (essentially integrated over time)
+ dt = 0.001;
+ delay(1);
+//Serial.print("pressure_pa:");
+//Serial.print(pressure_pa-36666);
+Serial.print("volFlow:");
+Serial.print(volFlow*1000);
+//Serial.print("volume:");
+//Serial.print(volume);
+
+}
